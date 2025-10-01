@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Surprise untuk Ozzara Nayla — 20th</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;600;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f9f7f4;
+      --card: #ffffff;
+      --gold: #d4af37;
+      --muted: #6e6a65;
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui;
+      background: linear-gradient(135deg, #fafafa, #f1ede6);
+      color: #222;
+    }
+
+    /* Curtain */
+    .curtain {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      z-index: 50
+    }
+
+    .panel {
+      flex: 1;
+      background: linear-gradient(180deg, #fefefe, #eae6dd);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 2.5s cubic-bezier(.77, 0, .18, 1);
+    }
+
+    .loader h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      color: var(--gold);
+      margin: 0
+    }
+
+    .loader p {
+      font-size: 14px;
+      color: var(--muted);
+      margin: 0
+    }
+
+    /* Card */
+    .stage {
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card {
+      max-width: 480px;
+      width: 100%;
+      background: var(--card);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, .1);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 16px
+    }
+
+    .logo {
+      width: 70px;
+      height: 70px;
+      margin: 0 auto 10px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), #f7e3a6);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 35px;
+      font-family: 'Playfair Display', serif;
+    }
+
+    .title h2 {
+      margin: 0;
+      color: var(--gold);
+      font-size: 22px;
+      font-family: 'Playfair Display', serif;
+      text-shadow: 0 0 8px rgba(212, 175, 55, .5);
+      animation: pulse 3s infinite
+    }
+
+    @keyframes pulse {
+      50% {
+        text-shadow: 0 0 18px rgba(212, 175, 55, .8)
+      }
+    }
+
+    .title p {
+      margin: 2px 0 0;
+      color: var(--muted);
+      font-size: 14px
+    }
+
+    .date-box {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 4px 10px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #fff5d7, #ffe9a9);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .message {
+      text-align: center;
+      background: #faf9f6;
+      padding: 18px;
+      border-radius: 14px;
+    }
+
+    .message h1 {
+      margin: 0 0 8px;
+      color: var(--gold);
+      font-family: 'Playfair Display', serif
+    }
+
+    .message .meta {
+      color: var(--muted);
+      margin-bottom: 10px;
+      font-size: 13px
+    }
+
+    .message p {
+      font-size: 15px;
+      line-height: 1.6;
+      color: #333;
+      min-height: 60px
+    }
+
+    /* Slider foto */
+    .slider {
+      position: relative;
+      overflow: hidden;
+      border-radius: 14px;
+      margin-top: 14px
+    }
+
+    .slides {
+      display: flex;
+      transition: transform 1s ease
+    }
+
+    .slides img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .panel-card {
+      text-align: center;
+      margin-top: 18px
+    }
+
+    .age {
+      font-size: 40px;
+      font-weight: 700;
+      color: var(--gold);
+      font-family: 'Playfair Display', serif
+    }
+
+    .small {
+      font-size: 13px;
+      color: var(--muted)
+    }
+
+    /* Confetti */
+    canvas#confetti {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 40
+    }
+
+    /* Modal */
+    .reveal-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .4);
+      z-index: 60;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .5s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .reveal-modal.show {
+      opacity: 1;
+      pointer-events: auto
+    }
+
+    .reveal-box {
+      max-width: 480px;
+      width: 100%;
+      background: #fff;
+      border-radius: 18px;
+      padding: 22px;
+      text-align: center;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .reveal-box img {
+      width: 100%;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      object-fit: cover
+    }
+
+    .btn {
+      padding: 8px 14px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(90deg, #fff5d7, #ffe9a9);
+      font-weight: 600;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Curtain -->
+  <div class="curtain" id="curtain">
+    <div class="panel top">
+      <div class="loader">
+        <h1>Happy Birthday</h1>
+        <p>Sebentar lagi...</p>
+      </div>
+    </div>
+    <div class="panel bottom">
+      <div class="loader">
+        <h1>✨ Hasan & Ozza ✨</h1>
+        <p>Memuat hadiah...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confetti -->
+  <canvas id="confetti"></canvas>
+
+  <div class="stage" aria-hidden="true">
+    <div class="card">
+      <div class="header">
+        <div class="logo">ON</div>
+        <div class="title">
+          <h2>Untuk <span id="nameLabel"></span></h2>
+          <p>Selamat ulang tahun ke-<span id="ageLabel"></span> dari Hasan</p>
+          <div class="date-box">02 Oktober 2005</div>
+        </div>
+      </div>
+      <div class="message">
+        <h1>Selamat Ulang Tahun, Ozza</h1>
+        <div class="meta">Usia: <strong id="ageMeta"></strong> — Nama: <strong id="nameMeta"></strong></div>
+        <p id="mainMessage"></p>
+        <!-- Slider -->
+        <div class="slider">
+          <div class="slides" id="slides"></div>
+        </div>
+      </div>
+      <div class="panel-card">
+        <h3>Hari ini usiamu</h3>
+        <div class="age" id="ageBig"></div>
+        <div class="small">Semoga berkah, cinta, dan kebahagiaan selalu menyertaimu</div>
+        <div style="margin-top:10px"><button class="btn" id="revealBtn">✨ Kejutan Tambahan ✨</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="reveal-modal" id="revealModal">
+    <div class="reveal-box">
+      <img id="revealPhoto" src="" alt="">
+      <h2>Surprise! 🎉</h2>
+      <p id="revealText"></p>
+      <button class="btn" id="closeReveal">Tutup</button>
+    </div>
+  </div>
+
+  <script>
+    const DATA = {
+      name: "Ozzara Nayla",
+      age: 20,
+      mainMessage: "Sayang Ozza, terima kasih telah menjadi cahaya hidupku. Semoga semua impianmu tercapai, sehat, bahagia, dan selalu dikelilingi cinta.",
+      photos: [
+        "5.jpg",
+        "3.jpg",
+        "2.jpg",
+        "5.jpg",
+        "6.jpg",
+        "8.jpg",
+        "9.jpg",
+        "10.jpg",
+        "1.jpg",
+        "5.jpg"
+      ],
+      revealMessage: `Ozzara sayang, ini untukmu. Semoga kejutan ini bisa menjadi hadiah yang berkesan dan sesuai dengan yang kamu impikan. Aku berharap kamu suka dengan apa yang aku siapkan.  
+
+Semoga hari-harimu selalu penuh cinta, tawa, dan kebahagiaan. Aku berdoa agar hidupmu diberkahi, bisnismu berkembang pesat, laris manis, dan dikenal banyak orang. Semoga apa yang kamu tekuni dengan kerja keras menjadi jalan menuju kesuksesan besar.  
+
+Jadilah pribadi yang sholeh, penuh kasih sayang kepada kedua orang tua, serta sabar menghadapi segala ujian bersama keluarga. Aku yakin kamu akan mampu membanggakan mereka di masa depan. Kamu adalah bagian dari keluarga yang selalu memberi rasa nyaman, dukungan, dan semangat satu sama lain. Dan aku pun akan selalu ada, menemanimu sampai kamu benar-benar sukses besar nanti.  
+
+Aku ingin terus mendukung dan membantumu mengembangkan bisnis yang kamu bangun. Aku akan berusaha menghadirkan banyak kesempatan untukmu mulai dari materi kewirausahaan yang pernah aku dapat dari pelatihan Wadhwani Foundation x UGM, sampai membantu menyusun proposal bisnismu, Business Model Canvas, Pitch Deck, dan presentasi terbaikmu.  
+
+Percayalah, ini bukan sekadar hadiah, tapi juga bentuk komitmenku untuk menemani setiap langkahmu. Bersama keluargamu dan aku, kamu tidak akan pernah berjalan sendirian. Kita akan berjuang bersama, berkolaborasi, mencari relasi, hingga membangun bisnismu menjadi salah satu yang terbaik di dunia.  
+
+Teruslah semangat, teruslah berdoa, dan teruslah berusaha. Aku bangga padamu, dan aku akan selalu mendukungmu sepenuhnya.  
+
+— Dengan penuh cinta, Hasan ❤️`
+    };
+
+    // isi data
+    document.getElementById("nameLabel").textContent = DATA.name;
+    document.getElementById("nameMeta").textContent = DATA.name;
+    document.getElementById("ageLabel").textContent = DATA.age;
+    document.getElementById("ageMeta").textContent = DATA.age;
+    document.getElementById("ageBig").textContent = DATA.age;
+    document.getElementById("revealText").textContent = DATA.revealMessage;
+
+    // typing
+    function typeEffect(el, text, speed = 50) {
+      let i = 0; el.textContent = "";
+      let timer = setInterval(() => {
+        el.textContent += text.charAt(i);
+        i++;
+        if (i >= text.length) clearInterval(timer);
+      }, speed);
+    }
+
+    // slider
+    const slides = document.getElementById("slides");
+    DATA.photos.forEach(src => {
+      let img = document.createElement("img");
+      img.src = src;
+      slides.appendChild(img);
+    });
+    let idx = 0;
+    function autoSlide() {
+      idx = (idx + 1) % DATA.photos.length;
+      slides.style.transform = `translateX(${-idx * 100}%)`;
+    }
+    setInterval(autoSlide, 3000);
+
+    // curtain
+    const curtain = document.getElementById("curtain");
+    const panels = document.querySelectorAll(".curtain .panel");
+    function openCurtain() {
+      panels[0].style.transform = "translateY(-120%)";
+      panels[1].style.transform = "translateY(120%)";
+      setTimeout(() => {
+        curtain.style.display = "none";
+        document.querySelector(".stage").setAttribute("aria-hidden", "false");
+        typeEffect(document.getElementById("mainMessage"), DATA.mainMessage, 45);
+      }, 2600);
+    }
+    window.addEventListener("load", () => setTimeout(openCurtain, 1500));
+
+    // modal
+    document.getElementById("revealBtn").onclick = () => {
+      document.getElementById("revealModal").classList.add("show");
+      startConfetti();
+      document.getElementById("revealPhoto").src = DATA.photos[0];
+    }
+    document.getElementById("closeReveal").onclick = () => {
+      document.getElementById("revealModal").classList.remove("show");
+      stopConfetti();
+    }
+
+    // confetti
+    const confCanvas = document.getElementById("confetti"), ctx = confCanvas.getContext("2d");
+    let W = confCanvas.width = window.innerWidth, H = confCanvas.height = window.innerHeight;
+    window.onresize = () => { W = confCanvas.width = window.innerWidth; H = confCanvas.height = window.innerHeight; }
+    let pieces = [];
+    function rand(min, max) { return Math.random() * (max - min) + min }
+    function reset(p) { p.x = rand(0, W); p.y = rand(-H, -10); p.size = rand(6, 14); p.speed = rand(1, 3); p.color = `hsl(${~~rand(30, 55)},70%,50%)` }
+    function spawn(n = 80) { for (let i = 0; i < n; i++) { let p = {}; reset(p); pieces.push(p); } }
+    function draw() { ctx.clearRect(0, 0, W, H); for (let p of pieces) { p.y += p.speed; ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, p.size, p.size); if (p.y > H) reset(p); } if (running) requestAnimationFrame(draw); }
+    let running = false;
+    function startConfetti() { if (!running) { spawn(100); running = true; draw(); } }
+    function stopConfetti() { running = false; pieces = []; ctx.clearRect(0, 0, W, H); }
+  </script>
+</body>
+
+</html>
