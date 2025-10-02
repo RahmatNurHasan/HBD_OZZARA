@@ -6,26 +6,51 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Surprise untuk Ozzara Nayla — 20th</title>
   <link
-    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;600;700&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;600;700&family=Reenie+Beanie&display=swap"
     rel="stylesheet">
+
   <style>
     :root {
       --bg: #f9f7f4;
       --card: #fff;
       --gold: #d4af37;
       --muted: #6e6a65;
+      --glass: rgba(255, 255, 255, 0.6);
+      --accent: #b06bff;
+    }
+
+    /* dark theme vars */
+    body.dark {
+      --bg: #0b0b10;
+      --card: #0f1115;
+      --gold: #ffd66b;
+      --muted: #bdb7b0;
+      --glass: rgba(255, 255, 255, 0.03);
+      --accent: #7ad7ff;
     }
 
     * {
       box-sizing: border-box;
     }
 
+    html, body {
+      height: 100%;
+    }
+
     body {
       margin: 0;
       font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      background: linear-gradient(135deg, #fafafa, #f1ede6);
+      background: linear-gradient(135deg, var(--bg), #f1ede6);
       color: #222;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      transition: background .4s, color .4s;
+      position: relative;
+      overflow-x: hidden;
     }
+
+    /* small utilities */
+    .hidden { display: none !important; }
 
     /* Curtain */
     .curtain {
@@ -33,7 +58,8 @@
       inset: 0;
       display: flex;
       flex-direction: column;
-      z-index: 50;
+      z-index: 100;
+      pointer-events: none;
     }
 
     .panel {
@@ -42,7 +68,36 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: transform 2.5s cubic-bezier(.77, 0, .18, 1);
+      transition: transform 2.5s cubic-bezier(.77, 0, .18, 1), opacity .6s;
+      pointer-events: auto;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.15);
+    }
+
+    .panel.bottom { transform-origin: top; }
+    .panel.top { transform-origin: bottom; }
+
+    .curtain .panel.shrunk { transform: translateY(-120%); opacity: 0; }
+    .curtain .panel.shrunk.bottom { transform: translateY(120%); }
+
+    .curtain-center {
+      position: absolute;
+      inset: 0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      pointer-events:none;
+      z-index:101;
+    }
+
+    .curtain-msg {
+      background: rgba(255,255,255,0.85);
+      padding: 12px 18px;
+      border-radius: 12px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+      text-align:center;
+      pointer-events:auto;
+      font-family: 'Playfair Display', serif;
+      color: var(--gold);
     }
 
     .loader h1 {
@@ -58,33 +113,47 @@
       margin: 0;
     }
 
-    /* Card */
+    /* Stage & Card */
     .stage {
       min-height: 100vh;
-      padding: 20px;
+      padding: 30px;
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
     .card {
-      max-width: 480px;
+      max-width: 900px;
       width: 100%;
       background: var(--card);
       border-radius: 20px;
-      padding: 20px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, .1);
+      padding: 18px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, .12);
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 18px;
+      align-items: start;
+      position: relative;
+      overflow: visible;
+    }
+
+    /* Left column */
+    .left {
+      min-width: 0;
     }
 
     .header {
-      text-align: center;
-      margin-bottom: 16px;
+      text-align: left;
+      margin-bottom: 12px;
+      display:flex;
+      gap:12px;
+      align-items:center;
     }
 
     .logo {
       width: 70px;
       height: 70px;
-      margin: 0 auto 10px;
+      margin: 0;
       border-radius: 50%;
       background: linear-gradient(135deg, var(--gold), #f7e3a6);
       display: flex;
@@ -94,6 +163,9 @@
       font-family: 'Playfair Display', serif;
       font-size: 28px;
       color: #111;
+      cursor: pointer;
+      user-select: none;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.08);
     }
 
     .title h2 {
@@ -101,14 +173,7 @@
       color: var(--gold);
       font-size: 22px;
       font-family: 'Playfair Display', serif;
-      text-shadow: 0 0 8px rgba(212, 175, 55, .5);
-      animation: pulse 3s infinite;
-    }
-
-    @keyframes pulse {
-      50% {
-        text-shadow: 0 0 18px rgba(212, 175, 55, .8);
-      }
+      text-shadow: 0 0 8px rgba(212, 175, 55, .3);
     }
 
     .title p {
@@ -127,10 +192,46 @@
       font-weight: 600;
     }
 
+.controls-top {
+  margin: 14px auto 0;
+  display:flex;
+  gap:12px;
+  align-items:center;
+  justify-content:center; /* pusat */
+}
+
+.reveal-content p {
+  white-space: pre-wrap;
+  margin: 0 0 10px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+body.dark .reveal-content p {
+  color: #eee; /* terang saat gelap */
+}
+
+    .btn {
+      border: none;
+      padding: 8px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      background: var(--gold);
+      color: #fff;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+    }
+
+    .btn.ghost {
+      background: transparent;
+      border: 1px solid rgba(0,0,0,0.06);
+      color: var(--muted);
+    }
+
+    /* Message & slider */
     .message {
-      text-align: center;
-      background: #faf9f6;
-      padding: 18px;
+      text-align: left;
+      background: rgba(250,249,246,0.7);
+      padding: 16px;
       border-radius: 14px;
     }
 
@@ -138,6 +239,7 @@
       margin: 0 0 8px;
       color: var(--gold);
       font-family: 'Playfair Display', serif;
+      font-size: 20px;
     }
 
     .message .meta {
@@ -151,36 +253,77 @@
       line-height: 1.6;
       color: #333;
       min-height: 60px;
+      margin: 8px 0 12px;
+      white-space: pre-wrap;
     }
 
-    /* Slider foto (card) */
+    /* slider */
     .slider {
       position: relative;
       overflow: hidden;
       border-radius: 14px;
-      margin-top: 14px;
+      margin-top: 12px;
+      background: linear-gradient(180deg, rgba(0,0,0,0.02), rgba(0,0,0,0.01));
+      border: 1px solid rgba(0,0,0,0.03);
     }
 
     .slides {
       display: flex;
       transition: transform 1s ease;
+      will-change: transform;
     }
 
     .slides img {
       width: 100%;
-      height: 380px;
+      height: 320px;
       object-fit: cover;
       flex-shrink: 0;
       display: block;
+      user-select: none;
     }
 
+    .timeline {
+      margin-top: 12px;
+      display:flex;
+      gap:8px;
+      overflow-x:auto;
+      padding-bottom:6px;
+    }
+
+    .timeline .thumb {
+      min-width: 92px;
+      height: 70px;
+      border-radius:10px;
+      overflow:hidden;
+      border: 2px solid transparent;
+      cursor:pointer;
+      flex: 0 0 auto;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    }
+
+    .timeline .thumb img{
+      width:100%;height:100%;object-fit:cover;display:block;
+    }
+
+    .thumb .cap {
+      font-size:11px;
+      text-align:center;
+      margin-top:6px;
+      color:var(--muted);
+    }
+
+    /* right column (panel-card) */
     .panel-card {
       text-align: center;
-      margin-top: 18px;
+      margin-top: 0;
+      padding-left: 12px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
     }
 
     .age {
-      font-size: 40px;
+      font-size: 44px;
       font-weight: 700;
       color: var(--gold);
       font-family: 'Playfair Display', serif;
@@ -191,20 +334,31 @@
       color: var(--muted)
     }
 
-    /* Confetti */
-    canvas#confetti {
+    .final-note {
+      font-size: 13px;
+      color: var(--muted);
+      background: var(--glass);
+      padding: 10px;border-radius: 10px;
+    }
+
+    /* Confetti & fireworks canvases */
+    canvas#confetti,
+    canvas#fireworks,
+    canvas#signature {
       position: fixed;
       inset: 0;
       pointer-events: none;
-      z-index: 40;
+      z-index: 70;
     }
+
+    canvas#signature { z-index: 80; pointer-events: none; }
 
     /* Modal */
     .reveal-modal {
       position: fixed;
       inset: 0;
       background: rgba(0, 0, 0, .45);
-      z-index: 60;
+      z-index: 120;
       opacity: 0;
       pointer-events: none;
       transition: opacity .25s;
@@ -220,24 +374,26 @@
     }
 
     .reveal-box {
-      max-width: 520px;
+      max-width: 820px;
       width: 100%;
-      background: #fff;
+      background: var(--card);
       border-radius: 16px;
       padding: 12px 14px;
       box-shadow: 0 20px 60px rgba(0, 0, 0, .25);
       max-height: 90vh;
       display: flex;
-      flex-direction: column;
+      gap:12px;
       overflow: hidden;
     }
 
     .reveal-box .photo {
-      width: 100%;
-      height: 220px;
+      width: 52%;
+      min-width: 260px;
+      height: auto;
       border-radius: 12px;
       overflow: hidden;
       flex: 0 0 auto;
+      background: #eee;
     }
 
     .reveal-box .photo img {
@@ -250,10 +406,9 @@
     .reveal-content {
       flex: 1 1 auto;
       overflow-y: auto;
-      padding: 12px 6px
+      padding: 6px 6px;
     }
 
-    /* area scroll normal */
     .reveal-content p {
       white-space: pre-wrap;
       margin: 0 0 10px;
@@ -287,24 +442,78 @@
       cursor: pointer;
     }
 
-    /* Responsive */
+    /* extra small screens */
+    @media(max-width:960px){
+      .card { grid-template-columns: 1fr; }
+      .panel-card { padding-left:0; order:2;}
+      .left { order:1; }
+      .reveal-box { flex-direction: column; }
+      .reveal-box .photo { width: 100%; height: 320px; }
+      .slides img { height: 260px; }
+    }
+
     @media(max-width:520px) {
-      .reveal-box {
-        padding: 10px;
-      }
+      .slides img { height: 420px; }
+      .logo { width:58px;height:58px;font-size:24px; }
+    }
 
-      .reveal-box .photo {
-        height: 380px;
-      }
+    /* subtle animated stars/hearts background */
+    .bg-decor {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      pointer-events: none;
+      overflow: hidden;
+    }
 
-      .slides img {
-        height: 350px;
-      }
+    .dec-item {
+      position: absolute;
+      opacity: 0.12;
+      transform: translateZ(0);
+      will-change: transform, opacity;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.06));
+    }
+
+    .heart {
+      font-family: 'Reenie Beanie', cursive;
+      font-size: 26px;
+      color: var(--gold);
+      animation: floaty 6s ease-in-out infinite;
+    }
+
+    .star {
+      width: 8px; height: 8px; border-radius: 2px;
+      background: linear-gradient(90deg,var(--gold), #fff);
+      animation: twinkle 4s linear infinite;
+    }
+
+    @keyframes floaty {
+      0% { transform: translateY(0) scale(.9); opacity:.06 }
+      50% { transform: translateY(-18px) scale(1.03); opacity:.18 }
+      100% { transform: translateY(0) scale(.9); opacity:.06 }
+    }
+
+    @keyframes twinkle {
+      0% { transform: scale(.8); opacity:.06 }
+      50% { transform: scale(1.2); opacity:.22 }
+      100% { transform: scale(.8); opacity:.06 }
+    }
+
+    /* secret badge */
+    .secret-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: linear-gradient(90deg,var(--accent),var(--gold));
+      color: white;
+      padding:6px 10px;border-radius:10px;font-weight:700;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.12);
     }
   </style>
 </head>
 
 <body>
+
   <!-- Curtain -->
   <div class="curtain" id="curtain">
     <div class="panel top">
@@ -321,37 +530,65 @@
     </div>
   </div>
 
-  <!-- Confetti -->
+  <div class="curtain-center hidden" id="curtainCenter">
+    <div class="curtain-msg" id="curtainFinalMsg">Terima kasih telah menjadi inspirasiku, Ozza 💛</div>
+  </div>
+
+  <!-- signature & effect canvases -->
+  <canvas id="signature"></canvas>
   <canvas id="confetti"></canvas>
+  <canvas id="fireworks"></canvas>
+
+  <!-- secret badge (appears when unlocked) -->
+<!-- kontrol tombol rapi center -->
+<div class="controls-top">
+  <button class="btn ghost" id="fireBtn" title="Nyalakan fireworks">🎆 Fireworks</button>
+  <button class="btn" id="revealBtn">✨ Kejutan Tambahan ✨</button>
+</div>
+
+<!-- pesan rahasia langsung di bawah -->
 
   <!-- Main card -->
   <div class="stage" aria-hidden="true">
-    <div class="card">
-      <div class="header">
-        <div class="logo">ON</div>
-        <div class="title">
-          <h2>Untuk <span id="nameLabel"></span></h2>
-          <p>Selamat ulang tahun ke-<span id="ageLabel"></span> dari Hasan</p>
-          <div class="date-box">02 Oktober 2005</div>
+    <div class="card" role="main">
+      <div class="left">
+        <div class="header">
+          <div class="logo" id="logoBtn" title="Klik 3x untuk pesan rahasia">ON</div>
+          <div style="flex:1">
+            <div class="title">
+              <h2>Untuk <span id="nameLabel"></span></h2>
+              <p>Selamat ulang tahun ke-<span id="ageLabel"></span> dari Hasan</p>
+              <div class="date-box">02 Oktober 2005</div>
+            </div>
+          </div>
+
+          
+        </div>
+
+        <div class="message" aria-live="polite">
+          <h1>Selamat Ulang Tahun, Ozza</h1>
+          <div class="meta">Usia: <strong id="ageMeta"></strong> — Nama: <strong id="nameMeta"></strong></div>
+          <p id="mainMessage"></p>
+
+          <!-- foto slider (card) -->
+          <div class="slider" aria-hidden="false" id="sliderWrap">
+            <div class="slides" id="slides"></div>
+          </div>
+
+          <!-- timeline -->
+          <div class="timeline" id="timeline"></div>
+
         </div>
       </div>
 
-      <div class="message">
-        <h1>Selamat Ulang Tahun, Ozza</h1>
-        <div class="meta">Usia: <strong id="ageMeta"></strong> — Nama: <strong id="nameMeta"></strong></div>
-        <p id="mainMessage"></p>
-
-        <!-- foto slider (card) -->
-        <div class="slider" aria-hidden="false">
-          <div class="slides" id="slides"></div>
-        </div>
-      </div>
-
-      <div class="panel-card">
+      <div class="panel-card" aria-hidden="false">
         <h3>Hari ini usiamu</h3>
         <div class="age" id="ageBig"></div>
-        <div class="small">Semoga berkah, cinta, dan kebahagiaan selalu menyertaimu</div>
-        <div style="margin-top:12px"><button class="close-small" id="revealBtn">✨ Kejutan Tambahan ✨</button></div>
+        <div class="small" id="countdownSmall">Menghitung...</div>
+
+        <div class="final-note" id="finalNote">Semoga berkah, cinta, dan kebahagiaan selalu menyertaimu</div>
+
+        <div style="margin-top:12px"><button class="close-small" id="openFinalBtn">Buka Penutup Akhir</button></div>
       </div>
     </div>
   </div>
@@ -377,14 +614,24 @@
   </div>
 
   <script>
-    // --- DATA (pakai kode kamu) ---
+    /***********
+     * DATA
+     ***********/
     const DATA = {
       name: "Ozzara Nayla",
-      age: 20,
-      mainMessage: "Sayang Ozza, terima kasih telah menjadi cahaya hidupku. Semoga semua impianmu tercapai, sehat, bahagia, dan selalu dikelilingi cinta.",
+      birthISO: "2005-10-02", // YYYY-MM-DD
+      mainMessage: `Sayang Ozza, terima kasih telah menjadi cahaya hidupku. Semoga semua impianmu tercapai, sehat, bahagia, dan selalu dikelilingi cinta.`,
       photos: [
         // ganti nama file / URL sesuai asetmu
         "5.jpg", "3.jpg", "2.jpg", "6.jpg", "8.jpg", "9.jpg", "10.jpg", "1.jpg"
+      ],
+      timeline: [
+        {year: 2005, img: "1.jpg", caption: "Awal cerita — 2005"},
+        {year: 2010, img: "2.jpg", caption: "Kenangan kecil — 2010"},
+        {year: 2015, img: "3.jpg", caption: "Momen lucu — 2015"},
+        {year: 2019, img: "5.jpg", caption: "Perjalanan seru — 2019"},
+        {year: 2022, img: "6.jpg", caption: "Bersama terus — 2022"},
+        {year: 2024, img: "8.jpg", caption: "Menuju mimpi — 2024"},
       ],
       // surat 1 (pendek)
       reveal1: `Selamat Ulang Tahun, Ozza Sayangku ❤✨
@@ -392,17 +639,11 @@
 Hari ini adalah hari istimewa, dan aku bersyukur bisa merayakannya bersamamu.
 Semoga kamu selalu sehat, bahagia, dan dilimpahi keberkahan dalam setiap langkah.
 
-Aku percaya kamu akan menjadi CEO hebat yang membawa bisnis-bisnismu  ON Farm, Ovella Bakery, dan semua yang kamu bangun  menuju kesuksesan besar yang dikenal banyak orang.
+Aku percaya kamu akan menjadi CEO hebat yang membawa bisnis-bisnismu ON Farm, Ovella Bakery, dan semua yang kamu bangun menuju kesuksesan besar yang dikenal banyak orang.
 
 Semoga kamu juga semakin sabar dalam berbisnis, tekun belajar, dan makin seru menikmati setiap proses perjuanganmu.
-Aku akan selalu jadi “ jd pendamping hidup ku selamanyaaa” yang mendukungmu, mendoakanmu, dan menemanimu sampai semua impianmu tercapai.
+Aku akan selalu jadi pendamping hidupmu yang mendukungmu, mendoakanmu, dan menemanimu sampai semua impianmu tercapai.`,
 
-Dan yang tak kalah penting, semoga hidupmu selalu penuh kasih kedua orang tua yang kamu cintai.
-Semoga kamu membanggakan mereka dengan prestasi, kesuksesan, dan segala pencapaianmu.
-
-Kamu bukan hanya cintaku, tapi juga inspirasiku.
-Selamat ulang tahun, cintaku Ozza. Semoga semua doa indah ini terwujud untukmu. 🌹✨
-`,
       // surat 2 (panjang)
       reveal2: `Ozzara sayang, ini untukmu. Semoga kejutan ini bisa menjadi hadiah yang berkesan dan sesuai dengan yang kamu impikan. Aku berharap kamu suka dengan apa yang aku siapkan.
 
@@ -410,33 +651,48 @@ Semoga hari-harimu selalu penuh cinta, tawa, dan kebahagiaan. Aku berdoa agar hi
 
 Jadilah pribadi yang sholeh, penuh kasih sayang kepada kedua orang tua, serta sabar menghadapi segala ujian bersama keluarga. Aku yakin kamu akan mampu membanggakan mereka di masa depan. Kamu adalah bagian dari keluarga yang selalu memberi rasa nyaman, dukungan, dan semangat satu sama lain. Dan aku pun akan selalu ada, menemanimu sampai kamu benar-benar sukses besar nanti.
 
-Aku ingin terus mendukung dan membantumu mengembangkan bisnis yang kamu bangun. Aku akan berusaha menghadirkan banyak kesempatan untukmu mulai dari materi kewirausahaan yang pernah aku dapat dari pelatihan Wadhwani Foundation x UGM, sampai membantu menyusun proposal bisnismu, Business Model Canvas, Pitch Deck, dan presentasi terbaikmu.
-
-Percayalah, ini bukan sekadar hadiah, tapi juga bentuk komitmenku untuk menemani setiap langkahmu. Bersama keluargamu dan aku, kamu tidak akan pernah berjalan sendirian. Kita akan berjuang bersama, berkolaborasi, mencari relasi, hingga membangun bisnismu menjadi salah satu yang terbaik di dunia.
-
-Teruslah semangat, teruslah berdoa, dan teruslah berusaha. Aku bangga padamu, dan aku akan selalu mendukungmu sepenuhnya.
-
 — Dengan penuh cinta, Hasan ❤️`
     };
 
-    // --- fill UI ---
+    /***********
+     * UI binding
+     ***********/
     document.getElementById("nameLabel").textContent = DATA.name;
     document.getElementById("nameMeta").textContent = DATA.name;
-    document.getElementById("ageLabel").textContent = DATA.age;
-    document.getElementById("ageMeta").textContent = DATA.age;
-    document.getElementById("ageBig").textContent = DATA.age;
 
-    // typing effect for main message
-    function typeEffect(el, text, speed = 40) {
-      let i = 0; el.textContent = "";
+    // compute current age (based on current real date)
+    function computeAgeFromISO(iso) {
+      const b = new Date(iso + "T00:00:00");
+      const now = new Date();
+      let age = now.getFullYear() - b.getFullYear();
+      const m = now.getMonth() - b.getMonth();
+      if (m < 0 || (m === 0 && now.getDate() < b.getDate())) age--;
+      return age;
+    }
+    const currentAge = computeAgeFromISO(DATA.birthISO);
+    document.getElementById("ageLabel").textContent = currentAge;
+    document.getElementById("ageMeta").textContent = currentAge;
+    document.getElementById("ageBig").textContent = currentAge;
+
+    /***********
+     * Typing effect (mainMessage)
+     ***********/
+    function typeEffect(el, text, speed = 32, cb) {
+      let i = 0;
+      el.textContent = "";
       const timer = setInterval(() => {
         el.textContent += text.charAt(i);
         i++;
-        if (i >= text.length) clearInterval(timer);
+        if (i >= text.length) {
+          clearInterval(timer);
+          if (cb) cb();
+        }
       }, speed);
     }
 
-    // Photo slider (card) - auto but gentle; images fit, no heavy scaling
+    /***********
+     * Slider
+     ***********/
     const slidesEl = document.getElementById("slides");
     DATA.photos.forEach(src => {
       const img = document.createElement("img");
@@ -449,39 +705,191 @@ Teruslah semangat, teruslah berdoa, dan teruslah berusaha. Aku bangga padamu, da
       slideIdx = (i + DATA.photos.length) % DATA.photos.length;
       slidesEl.style.transform = `translateX(${-slideIdx * 100}%)`;
     }
-    // auto slide every 3s
-    let slideInterval = setInterval(() => showSlide(slideIdx + 1), 3000);
-    // pause on hover (optional)
+    let slideInterval = null;
+    function startSlideAuto() {
+      if (slideInterval) clearInterval(slideInterval);
+      slideInterval = setInterval(() => showSlide(slideIdx + 1), 3000);
+    }
+    startSlideAuto();
     slidesEl.addEventListener("mouseenter", () => clearInterval(slideInterval));
-    slidesEl.addEventListener("mouseleave", () => { slideInterval = setInterval(() => showSlide(slideIdx + 1), 3000); });
+    slidesEl.addEventListener("mouseleave", () => startSlideAuto());
 
-    // Curtain open
+    /***********
+     * Timeline thumbnails
+     ***********/
+    const timelineEl = document.getElementById("timeline");
+    DATA.timeline.forEach((t, idx) => {
+      const wrap = document.createElement("div");
+      wrap.className = "thumb";
+      wrap.setAttribute("data-idx", idx);
+      wrap.innerHTML = `<img src="${t.img}" alt="${t.caption}"><div class="cap">${t.year}</div>`;
+      timelineEl.appendChild(wrap);
+      wrap.addEventListener("click", () => {
+        // open modal with this photo and focus on first letter
+        openModalWith({photo: t.img, text1: DATA.reveal1, text2: DATA.reveal2});
+      });
+    });
+
+    /***********
+     * Curtain open/close and final ending
+     ***********/
     const curtain = document.getElementById("curtain");
     const panels = document.querySelectorAll(".curtain .panel");
+    const curtainCenter = document.getElementById("curtainCenter");
+
     function openCurtain() {
-      panels[0].style.transform = "translateY(-120%)";
-      panels[1].style.transform = "translateY(120%)";
+      panels.forEach((p, i) => {
+        if (i === 0) p.style.transform = "translateY(-120%)";
+        else p.style.transform = "translateY(120%)";
+        p.style.opacity = "0";
+      });
       setTimeout(() => {
         curtain.style.display = "none";
         document.querySelector(".stage").setAttribute("aria-hidden", "false");
-        typeEffect(document.getElementById("mainMessage"), DATA.mainMessage, 35);
+        typeEffect(document.getElementById("mainMessage"), DATA.mainMessage, 30, () => {
+          // after message typed, draw signature
+          drawSignature();
+        });
       }, 2600);
     }
-    window.addEventListener("load", () => setTimeout(openCurtain, 1500));
 
-    // Confetti canvas simple
-    const confCanvas = document.getElementById("confetti"), ctx = confCanvas.getContext("2d");
+    window.addEventListener("load", () => setTimeout(openCurtain, 1200));
+
+    // final curtain closing message after ~60s
+    function finalCurtainSequence() {
+      // show center message panel with curtain center
+      curtainCenter.classList.remove("hidden");
+      curtainCenter.style.opacity = '0';
+      curtainCenter.style.transition = 'opacity .6s';
+      setTimeout(() => { curtainCenter.style.opacity = '1'; }, 80);
+
+      // re-open small curtain panels coming back (visual drop)
+      curtain.style.display = "flex";
+      panels.forEach((p, i) => {
+        p.style.opacity = "1";
+        if (i === 0) p.style.transform = "translateY(0)";
+        else p.style.transform = "translateY(0)";
+      });
+
+      // after 3s fade out both panels and hide
+      setTimeout(() => {
+        panels.forEach((p) => {
+          p.style.transform = "translateY(0)";
+          p.style.opacity = "0";
+        });
+        setTimeout(() => {
+          curtain.style.display = "none";
+          curtainCenter.classList.add("hidden");
+        }, 1500);
+      }, 3500);
+    }
+
+    // schedule final curtain after 60s from initial open
+    // setTimeout(finalCurtainSequence, 60 * 1000); // 60s
+
+    // allow manual final open
+    document.getElementById("openFinalBtn").addEventListener("click", finalCurtainSequence);
+
+    /***********
+     * Confetti simple (used also for reveal)
+     ***********/
+    const confCanvas = document.getElementById("confetti"), confCtx = confCanvas.getContext("2d");
     let W = confCanvas.width = window.innerWidth, H = confCanvas.height = window.innerHeight;
-    window.addEventListener("resize", () => { W = confCanvas.width = window.innerWidth; H = confCanvas.height = window.innerHeight; });
-    let pieces = [], running = false;
-    function rand(min, max) { return Math.random() * (max - min) + min }
-    function resetPiece(p) { p.x = rand(0, W); p.y = rand(-H, -10); p.size = rand(6, 14); p.speed = rand(1, 3); p.color = `hsl(${~~rand(30, 55)},70%,50%)`; }
-    function spawn(n = 80) { for (let i = 0; i < n; i++) { let p = {}; resetPiece(p); pieces.push(p); } }
-    function draw() { ctx.clearRect(0, 0, W, H); for (const p of pieces) { p.y += p.speed; ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, p.size, p.size); if (p.y > H) resetPiece(p); } if (running) requestAnimationFrame(draw); }
-    function startConfetti() { if (!running) { spawn(100); running = true; draw(); } }
-    function stopConfetti() { running = false; pieces = []; ctx.clearRect(0, 0, W, H); }
+    window.addEventListener("resize", () => { W = confCanvas.width = window.innerWidth; H = confCanvas.height = window.innerHeight; fw.reset(); confReset(); });
+    let confPieces = [];
+    function confReset() {
+      confPieces = [];
+    }
+    function confSpawn(n = 80) { for (let i = 0; i < n; i++) { confPieces.push({x: Math.random()*W, y: Math.random()*-H, w: Math.random()*12+6, vy: Math.random()*1.8+1, ang: Math.random()*Math.PI*2, color: `hsl(${~~(Math.random()*60)+20},70%,50%)`}); } }
+    let confRunning=false;
+    function confDraw(){
+      confCtx.clearRect(0,0,W,H);
+      for(const p of confPieces){
+        p.y += p.vy;
+        p.ang += 0.08;
+        confCtx.save();
+        confCtx.translate(p.x,p.y);
+        confCtx.rotate(p.ang);
+        confCtx.fillStyle = p.color;
+        confCtx.fillRect(-p.w/2,-p.w/2,p.w,p.w/1.6);
+        confCtx.restore();
+        if (p.y > H+50) { p.y = Math.random()*-H; p.x = Math.random()*W; }
+      }
+      if (confRunning) requestAnimationFrame(confDraw);
+    }
+    function confStart(){ if(!confRunning){ confReset(); confSpawn(120); confRunning=true; confDraw(); } }
+    function confStop(){ confRunning=false; confPieces=[]; confCtx.clearRect(0,0,W,H); }
 
-    // Modal behavior: photo top, two letters in content, prev/next near close
+    /***********
+     * Fireworks (button)
+     ***********/
+    const fwCanvas = document.getElementById("fireworks"), fwCtx = fwCanvas.getContext("2d");
+    fwCanvas.width = window.innerWidth; fwCanvas.height = window.innerHeight;
+    const fw = {
+      particles: [],
+      rockets: [],
+      running: false,
+      reset(){ this.particles=[]; this.rockets=[]; fwCtx.clearRect(0,0,fwCanvas.width,fwCanvas.height); this.running=false; }
+    };
+    function fwResize(){ fwCanvas.width = window.innerWidth; fwCanvas.height = window.innerHeight; }
+    window.addEventListener("resize", fwResize);
+    function spawnRocket(x,y){
+      fw.rockets.push({x:x||Math.random()*fwCanvas.width, y:fwCanvas.height, vx:(Math.random()-0.5)*3, vy:- (6+Math.random()*8), trails:[]});
+    }
+    function fwLoop(){
+      fwCtx.clearRect(0,0,fwCanvas.width,fwCanvas.height);
+      // rockets
+      for(let i=fw.rockets.length-1;i>=0;i--){
+        const r = fw.rockets[i];
+        r.x += r.vx; r.y += r.vy; r.vy += 0.12;
+        r.trails.push({x:r.x,y:r.y,ttl:20});
+        if(r.trails.length>10) r.trails.shift();
+        if(r.vy > -2){ // explode
+          for(let k=0;k<30;k++){
+            fw.particles.push({x:r.x,y:r.y,vx:(Math.random()-0.5)*6,vy:(Math.random()-0.5)*6,life:60,color:`hsl(${~~(Math.random()*360)},80%,60%)`});
+          }
+          fw.rockets.splice(i,1);
+        }
+      }
+      // draw rockets trails
+      for(const r of fw.rockets){
+        for(const t of r.trails){
+          fwCtx.fillStyle = 'rgba(255,255,255,0.05)';
+          fwCtx.fillRect(t.x, t.y, 2,2);
+        }
+      }
+      // particles
+      for(let i=fw.particles.length-1;i>=0;i--){
+        const p = fw.particles[i];
+        p.x += p.vx; p.y += p.vy; p.vy += 0.04; p.life--;
+        fwCtx.fillStyle = p.color;
+        fwCtx.globalAlpha = Math.max(0, p.life/60);
+        fwCtx.fillRect(p.x, p.y, 3,3);
+        if(p.life<=0) fw.particles.splice(i,1);
+      }
+      fwCtx.globalAlpha = 1;
+      if(fw.running) requestAnimationFrame(fwLoop);
+    }
+    function fwStart(){
+      if(!fw.running){
+        fw.running=true;
+        fwLoop();
+        // spawn rockets periodically for ~6s
+        const spawnInterval = setInterval(()=>spawnRocket(), 300);
+        setTimeout(()=>{ clearInterval(spawnInterval); }, 5000);
+        setTimeout(()=>{ fw.running=false; }, 7000);
+      }
+    }
+
+    document.getElementById("fireBtn").addEventListener("click", () => {
+      confStart(); // confetti + fireworks combo
+      fwStart();
+      setTimeout(() => confStop(), 5200);
+    });
+
+    /***********
+     * Modal logic, random photo on open
+     ***********/
     const revealModal = document.getElementById("revealModal");
     const revealPhoto = document.getElementById("revealPhoto");
     const revealText1 = document.getElementById("revealText1");
@@ -491,50 +899,43 @@ Teruslah semangat, teruslah berdoa, dan teruslah berusaha. Aku bangga padamu, da
     const nextTextBtn = document.getElementById("nextText");
     const closeBtn = document.getElementById("closeReveal");
 
-    // put texts
     revealText1.textContent = DATA.reveal1;
     revealText2.textContent = DATA.reveal2;
 
-    // modal current index (0 = show first paragraph on top of scroll, 1 = scroll to second)
     let modalIndex = 0;
-    function openModal() {
-      // set photo and open
-      revealPhoto.src = DATA.photos[0] || "";
+    function openModalWith(opts = {}) {
+      // choose a random photo if none passed
+      const photo = opts.photo || DATA.photos[Math.floor(Math.random()*DATA.photos.length)] || "";
+      revealPhoto.src = photo;
+      revealText1.textContent = opts.text1 || DATA.reveal1;
+      revealText2.textContent = opts.text2 || DATA.reveal2;
       revealModal.classList.add("show");
-      revealModal.setAttribute("aria-hidden", "false");
-      // ensure content scrolled to top of first paragraph
+      revealModal.setAttribute("aria-hidden","false");
       revealContent.scrollTop = 0;
       modalIndex = 0;
-      startConfetti();
-      // focus for accessibility
+      confStart();
+      // stop confetti after some seconds
+      setTimeout(()=>confStop(), 6000);
       closeBtn.focus();
     }
     function closeModal() {
       revealModal.classList.remove("show");
-      revealModal.setAttribute("aria-hidden", "true");
-      stopConfetti();
+      revealModal.setAttribute("aria-hidden","true");
     }
-
-    // Prev/Next behavior will scroll to resulting paragraph
     function showModalIndex(i) {
       modalIndex = Math.max(0, Math.min(1, i));
-      // compute scroll position to top of the paragraph inside revealContent
-      // Because we have simple layout: p (1), hr, p (2). We'll target child positions.
       const children = Array.from(revealContent.children);
-      const target = children[modalIndex * 2]; // p at 0 or p at 2 (because hr is index 1)
-      if (target) {
-        // smooth scroll
+      const target = children[modalIndex*2];
+      if(target){
         revealContent.scrollTo({ top: target.offsetTop, behavior: 'smooth' });
       }
     }
 
-    // button wireups
-    document.getElementById("revealBtn").addEventListener("click", openModal);
+    document.getElementById("revealBtn").addEventListener("click", () => openModalWith());
     closeBtn.addEventListener("click", closeModal);
     prevTextBtn.addEventListener("click", () => showModalIndex(modalIndex - 1));
     nextTextBtn.addEventListener("click", () => showModalIndex(modalIndex + 1));
 
-    // allow keyboard navigation when modal open
     document.addEventListener("keydown", (e) => {
       if (revealModal.classList.contains("show")) {
         if (e.key === "Escape") closeModal();
@@ -543,29 +944,241 @@ Teruslah semangat, teruslah berdoa, dan teruslah berusaha. Aku bangga padamu, da
       }
     });
 
-    // allow swipe inside revealContent for mobile (simple)
-    let startY = 0, startX = 0;
+    // touch swipe inside revealContent to switch letters
+    let startX = 0, startY = 0;
     revealContent.addEventListener('touchstart', e => {
-      if (e.touches && e.touches[0]) {
-        startX = e.touches[0].clientX;
-        startY = e.touches[0].clientY;
+      if(e.touches && e.touches[0]) {
+        startX = e.touches[0].clientX; startY = e.touches[0].clientY;
       }
     }, { passive: true });
     revealContent.addEventListener('touchend', e => {
-      if (e.changedTouches && e.changedTouches[0]) {
+      if(e.changedTouches && e.changedTouches[0]) {
         const dx = e.changedTouches[0].clientX - startX;
         const dy = e.changedTouches[0].clientY - startY;
-        // horizontal swipe: left/right -> next/prev
-        if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) {
-          if (dx < 0) showModalIndex(modalIndex + 1);
+        if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)){
+          if(dx < 0) showModalIndex(modalIndex + 1);
           else showModalIndex(modalIndex - 1);
         }
       }
     });
 
-    // Prevent background scroll when modal open? User requested modal scroll normal;
-    // We'll allow background scroll but keep focus inside modal — simpler: disable body scroll while modal open to avoid double scroll.
+    /***********
+     * Countdown to next birthday / to turning 21
+     ***********/
+    const countdownEl = document.getElementById("countdownSmall");
+    function updateCountdown(){
+      const birth = new Date(DATA.birthISO + "T00:00:00");
+      const now = new Date();
+      const thisYear = now.getFullYear();
+      // next birthday date:
+      let nextBday = new Date(thisYear + "-" + String(birth.getMonth()+1).padStart(2,"0") + "-" + String(birth.getDate()).padStart(2,"0") + "T00:00:00");
+      if (nextBday <= now) nextBday = new Date((thisYear+1) + "-" + String(birth.getMonth()+1).padStart(2,"0") + "-" + String(birth.getDate()).padStart(2,"0") + "T00:00:00");
+      // days to next bday
+      const diff = nextBday - now;
+      const days = Math.floor(diff / (1000*60*60*24));
+      const hrs = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+      const mins = Math.floor((diff % (1000*60*60)) / (1000*60));
+      countdownEl.textContent = `Sisa ${days} hari ${hrs} jam ${mins} menit hingga ulang tahun berikutnya`;
 
+      // also compute days to 21st birthday specifically
+      const b21 = new Date((birth.getFullYear()+21) + "-" + String(birth.getMonth()+1).padStart(2,"0") + "-" + String(birth.getDate()).padStart(2,"0") + "T00:00:00");
+      const diff21 = b21 - now;
+      if(diff21 <= 0){
+        // already 21+
+        // do nothing extra
+      } else {
+        const days21 = Math.floor(diff21 / (1000*60*60*24));
+        // show smaller note
+        // append to countdownEl
+        countdownEl.textContent += ` • Sisa ${days21} hari menuju usia 21`;
+      }
+    }
+    updateCountdown();
+    setInterval(updateCountdown, 60*1000);
+
+    /***********
+     * Background decorative hearts/stars
+     ***********/
+    const bgDecor = document.getElementById("bgDecor");
+    function makeDecor() {
+      // create multiple little things
+      for(let i=0;i<12;i++){
+        const el = document.createElement("div");
+        el.className = "dec-item";
+        const isHeart = Math.random() > 0.5;
+        el.style.left = (Math.random()*95) + "%";
+        el.style.top = (Math.random()*95) + "%";
+        el.style.opacity = (Math.random()*0.6)+0.02;
+        el.style.transform = `scale(${(Math.random()*1.4)+0.4})`;
+        el.style.animationDelay = `${Math.random()*4}s`;
+        if(isHeart){
+          el.innerHTML = `<div class="heart">❤</div>`;
+        } else {
+          el.innerHTML = `<div class="star"></div>`;
+        }
+        bgDecor.appendChild(el);
+      }
+    }
+    makeDecor();
+
+    /***********
+     * Secret message: triple click on logo to unlock
+     ***********/
+    const logo = document.getElementById("logoBtn");
+    let logoClicks = 0;
+    let logoTimer = null;
+    let secretUnlocked = false;
+    logo.addEventListener("click", () => {
+      logoClicks++;
+      if(logoTimer) clearTimeout(logoTimer);
+      logoTimer = setTimeout(()=> { logoClicks = 0; }, 900);
+      if(logoClicks >= 3 && !secretUnlocked){
+        secretUnlocked = true;
+        logoClicks = 0;
+        // show secret badge and open a private message modal
+        document.getElementById("secretBadge").classList.remove("hidden");
+        openModalWith({photo: DATA.photos[0], text1: "Ini pesan rahasia: Aku selalu mendukungmu, Ozza. Jadilah besar. — Hasan", text2: DATA.reveal2});
+      }
+    });
+
+    /***********
+     * Dark mode toggle
+     ***********/
+    const darkToggle = document.getElementById("darkToggle");
+    darkToggle.addEventListener("click", () => {
+      document.body.classList.toggle("dark");
+      darkToggle.textContent = document.body.classList.contains("dark") ? "☀️" : "🌙";
+    });
+
+    /***********
+     * Signature draw canvas (simple path)
+     ***********/
+    const sigCanvas = document.getElementById("signature");
+    const sigCtx = sigCanvas.getContext("2d");
+    function resizeSig(){ sigCanvas.width = window.innerWidth; sigCanvas.height = window.innerHeight; }
+    resizeSig();
+    window.addEventListener("resize", resizeSig);
+
+    function drawSignature(){
+      // simple "Hasan ♥" path traced programmatically
+      const W = sigCanvas.width, H = sigCanvas.height;
+      sigCtx.clearRect(0,0,W,H);
+      sigCtx.lineWidth = 2.8;
+      sigCtx.strokeStyle = "rgba(212,175,55,0.98)";
+      sigCtx.lineCap = "round";
+      sigCtx.lineJoin = "round";
+
+      // create a bezier-ish path near bottom-right of card
+      const startX = W*0.62, startY = H*0.62;
+      const path = [
+        {x:startX,y:startY},
+        {x:startX+40,y:startY+6},
+        {x:startX+90,y:startY-6},
+        {x:startX+140,y:startY+2},
+        {x:startX+180,y:startY-14},
+        {x:startX+220,y:startY+6}
+      ];
+
+      // prepare sample sampled points to draw progressively
+      let t = 0;
+      const points = [];
+      // make a smooth composite path: linear interpolation across segments
+      for(let s=0;s<path.length-1;s++){
+        const a = path[s], b = path[s+1];
+        for(let u=0;u<20;u++){
+          const f = u/20;
+          points.push({x: a.x*(1-f)+b.x*f + Math.sin((s+u)/4)*4, y: a.y*(1-f)+b.y*f + Math.cos((s+u)/6)*3});
+        }
+      }
+      // add little heart end
+      const heartCenter = {x: path[path.length-1].x + 30, y: path[path.length-1].y + 2};
+      // animate stroke drawing
+      sigCtx.beginPath();
+      let i = 0;
+      const inter = setInterval(()=>{
+        if(i<points.length){
+          const p = points[i];
+          if(i===0) sigCtx.moveTo(p.x,p.y);
+          else sigCtx.lineTo(p.x,p.y);
+          sigCtx.stroke();
+        } else if (i === points.length) {
+          // draw quick heart
+          sigCtx.fillStyle = "rgba(212,175,55,0.96)";
+          drawHeart(sigCtx, heartCenter.x, heartCenter.y, 10);
+        } else {
+          clearInterval(inter);
+          // fade out the signature canvas slowly
+          setTimeout(()=> {
+            const fade = setInterval(()=> {
+              sigCtx.fillStyle = "rgba(255,255,255,0.02)";
+              sigCtx.fillRect(0,0,W,H);
+            }, 120);
+            setTimeout(()=> clearInterval(fade), 4000);
+          }, 700);
+        }
+        i++;
+      }, 18);
+    }
+
+    function drawHeart(ctx, x, y, size){
+      ctx.beginPath();
+      const topY = y - size;
+      ctx.moveTo(x, topY);
+      ctx.bezierCurveTo(x + size, topY - size/1.2, x + size*2.5, y + size/2, x, y + size*1.4);
+      ctx.bezierCurveTo(x - size*2.5, y + size/2, x - size, topY - size/1.2, x, topY);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    /***********
+     * Signature draw is triggered after main message typed in openCurtain
+     * (already called in openCurtain)
+     ***********/
+
+    /***********
+     * Photo randomization when opening modal is handled in openModalWith()
+     ***********/
+
+    /***********
+     * Extra: allow clicking slides to open modal with that photo
+     ***********/
+    slidesEl.addEventListener("click", (e) => {
+      // find clicked image index by offset
+      const imgs = Array.from(slidesEl.querySelectorAll("img"));
+      const clicked = e.target;
+      const idx = imgs.indexOf(clicked);
+      if(idx >= 0){
+        openModalWith({photo: DATA.photos[idx]});
+      }
+    });
+
+    /***********
+     * Small accessibility: allow closing modal by click outside content
+     ***********/
+    revealModal.addEventListener("click", (e) => {
+      if(e.target === revealModal) closeModal();
+    });
+
+    /***********
+     * Start page: type main message after curtain
+     ***********/
+    // Already triggered in openCurtain()
+
+    /***********
+     * small enhancement: randomize modal photo each time reveal btn pressed (already used)
+     ***********/
+
+    /***********
+     * Clean-up on unload
+     ***********/
+    window.addEventListener("beforeunload", () => {
+      confStop();
+      fw.reset();
+    });
+
+    /***********
+     * Final small improvement: if user doesn't want auto confetti, they can trigger fireworks manually (we already added)
+     ***********/
   </script>
 </body>
 
