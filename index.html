@@ -306,23 +306,37 @@
   </div>
 
   <script>
-    const DATA = {
-      name: "Ozzara Nayla",
-      age: 20,
-      mainMessage: "Sayang Ozza, terima kasih telah menjadi cahaya hidupku. Semoga semua impianmu tercapai, sehat, bahagia, dan selalu dikelilingi cinta.",
-      photos: [
-        "5.jpg",
-        "3.jpg",
-        "2.jpg",
-        "5.jpg",
-        "6.jpg",
-        "8.jpg",
-        "9.jpg",
-        "10.jpg",
-        "1.jpg",
-        "5.jpg"
-      ],
-      revealMessage: `Ozzara sayang, ini untukmu. Semoga kejutan ini bisa menjadi hadiah yang berkesan dan sesuai dengan yang kamu impikan. Aku berharap kamu suka dengan apa yang aku siapkan.  
+const DATA = {
+  name: "Ozzara Nayla",
+  age: 20,
+  mainMessage: `Selamat Ulang Tahun, Ozza Sayangku ❤✨
+
+Hari ini adalah hari istimewa, dan aku bersyukur bisa merayakannya bersamamu.
+Semoga kamu selalu sehat, bahagia, dan dilimpahi keberkahan dalam setiap langkah.
+
+Aku percaya kamu akan menjadi CEO hebat yang membawa bisnis-bisnismu ON Farm, Ovella Bakery, dan semua yang kamu bangun menuju kesuksesan besar yang dikenal banyak orang.
+
+Semoga kamu juga semakin sabar dalam berbisnis, tekun belajar, dan makin seru menikmati setiap proses perjuanganmu.
+Aku akan selalu jadi “pendamping hidupmu selamanyaaa” yang mendukungmu, mendoakanmu, dan menemanimu sampai semua impianmu tercapai.
+
+Dan yang tak kalah penting, semoga hidupmu selalu penuh kasih kedua orang tua yang kamu cintai.
+Semoga kamu membanggakan mereka dengan prestasi, kesuksesan, dan segala pencapaianmu.
+
+Kamu bukan hanya cintaku, tapi juga inspirasiku.
+Selamat ulang tahun, cintaku Ozza. Semoga semua doa indah ini terwujud untukmu. 🌹✨`,
+
+  photos: [
+    "5.jpg",
+    "2.jpg",
+    "1.jpg",
+    "5.jpg",
+    "8.jpg",
+    "9.jpg",
+    "10.jpg",
+    "3.jpg",
+  ],
+
+  revealMessage: `Ozzara sayang, ini untukmu. Semoga kejutan ini bisa menjadi hadiah yang berkesan dan sesuai dengan yang kamu impikan. Aku berharap kamu suka dengan apa yang aku siapkan.  
 
 Semoga hari-harimu selalu penuh cinta, tawa, dan kebahagiaan. Aku berdoa agar hidupmu diberkahi, bisnismu berkembang pesat, laris manis, dan dikenal banyak orang. Semoga apa yang kamu tekuni dengan kerja keras menjadi jalan menuju kesuksesan besar.  
 
@@ -335,7 +349,7 @@ Percayalah, ini bukan sekadar hadiah, tapi juga bentuk komitmenku untuk menemani
 Teruslah semangat, teruslah berdoa, dan teruslah berusaha. Aku bangga padamu, dan aku akan selalu mendukungmu sepenuhnya.  
 
 — Dengan penuh cinta, Hasan ❤️`
-    };
+};
 
     // isi data
     document.getElementById("nameLabel").textContent = DATA.name;
@@ -408,6 +422,5 @@ Teruslah semangat, teruslah berdoa, dan teruslah berusaha. Aku bangga padamu, da
     function stopConfetti() { running = false; pieces = []; ctx.clearRect(0, 0, W, H); }
   </script>
 </body>
-
 
 </html>
