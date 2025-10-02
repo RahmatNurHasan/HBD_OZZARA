@@ -25,6 +25,7 @@
       font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial;
       background: linear-gradient(135deg, #fafafa, #f1ede6);
       color: #222;
+      overflow-x: hidden;
     }
 
     /* Curtain */
@@ -92,8 +93,8 @@
       justify-content: center;
       font-weight: 700;
       font-family: 'Playfair Display', serif;
-      font-size: 28px;
-      color: #111;
+      font-size: 30px;
+      color: #ffffff;
     }
 
     .title h2 {
@@ -138,6 +139,16 @@
       margin: 0 0 8px;
       color: var(--gold);
       font-family: 'Playfair Display', serif;
+      opacity: 0;
+      transform: scale(0.8);
+      animation: fadeZoom 1.8s ease forwards;
+    }
+
+    @keyframes fadeZoom {
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
     }
 
     .message .meta {
@@ -191,12 +202,29 @@
       color: var(--muted)
     }
 
-    /* Confetti */
-    canvas#confetti {
+    /* Confetti & Fireworks */
+    canvas#confetti,
+    canvas#fireworks {
       position: fixed;
       inset: 0;
       pointer-events: none;
       z-index: 40;
+    }
+
+    /* Fireworks toggle button */
+    .fireworks-btn {
+      position: fixed;
+      right: 12px;
+      bottom: 12px;
+      z-index: 70;
+      background: linear-gradient(135deg, #ffd700, #ff6ec4);
+      border: none;
+      color: #fff;
+      font-weight: bold;
+      padding: 10px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, .2);
     }
 
     /* Modal */
@@ -253,12 +281,34 @@
       padding: 12px 6px
     }
 
-    /* area scroll normal */
     .reveal-content p {
       white-space: pre-wrap;
       margin: 0 0 10px;
       color: #333;
       line-height: 1.6;
+    }
+
+    .signature {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: #d62d5e;
+      margin-top: 16px;
+      border-right: 2px solid transparent;
+      width: fit-content;
+      white-space: nowrap;
+      overflow: hidden;
+      animation: typing 3s steps(30) forwards;
+    }
+
+    @keyframes typing {
+      from {
+        width: 0;
+      }
+
+      to {
+        width: 100%;
+      }
     }
 
     .reveal-controls {
@@ -285,6 +335,23 @@
       border-radius: 10px;
       padding: 8px 14px;
       cursor: pointer;
+    }
+
+    /* shimmer button */
+    #revealBtn {
+      background: linear-gradient(90deg, #ffe9a9, #fff5d7, #ffe9a9);
+      background-size: 200% auto;
+      animation: shimmer 3s linear infinite;
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: 200% 0;
+      }
+
+      100% {
+        background-position: -200% 0;
+      }
     }
 
     /* Responsive */
@@ -323,6 +390,9 @@
 
   <!-- Confetti -->
   <canvas id="confetti"></canvas>
+  <!-- Fireworks -->
+  <canvas id="fireworks"></canvas>
+  <button class="fireworks-btn" id="fireworksToggle"></button>
 
   <!-- Main card -->
   <div class="stage" aria-hidden="true">
@@ -356,38 +426,32 @@
     </div>
   </div>
 
-  <!-- Modal (foto atas, surat tengah, controls bawah) -->
+  <!-- Modal -->
   <div class="reveal-modal" id="revealModal" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="reveal-box" role="document">
       <div class="photo"><img id="revealPhoto" src="" alt="Foto Kejutan"></div>
-
       <div class="reveal-content" id="revealContent">
-        <!-- Two letters as separate paragraphs; user can scroll normally inside -->
         <p id="revealText1"></p>
         <hr style="border:none;border-top:1px solid #eee;margin:12px 0">
         <p id="revealText2"></p>
+        <div class="signature">— Hasan ❤️</div>
       </div>
-
       <div class="reveal-controls">
-        <button class="nav-small" id="prevText" title="Lihat surat sebelumnya">◀</button>
+        <button class="nav-small" id="prevText">◀</button>
         <button class="close-small" id="closeReveal">Tutup</button>
-        <button class="nav-small" id="nextText" title="Lihat surat selanjutnya">▶</button>
+        <button class="nav-small" id="nextText">▶</button>
       </div>
     </div>
   </div>
 
-  <script>
-    // --- DATA (pakai kode kamu) ---
-    const DATA = {
-      name: "Ozzara Nayla",
-      age: 20,
-      mainMessage: "Sayang Ozza, terima kasih telah menjadi cahaya hidupku. Semoga semua impianmu tercapai, sehat, bahagia, dan selalu dikelilingi cinta.",
-      photos: [
-        // ganti nama file / URL sesuai asetmu
-        "5.jpg", "3.jpg", "2.jpg", "6.jpg", "8.jpg", "9.jpg", "10.jpg", "1.jpg"
-      ],
-      // surat 1 (pendek)
-      reveal1: `Selamat Ulang Tahun, Ozza Sayangku ❤✨
+<script>  
+  // --- DATA ---
+  const DATA = {
+    name: "Ozzara Nayla",
+    age: 20,
+    mainMessage: "Sayang Ozza, terima kasih telah menjadi cahaya hidupku. Semoga semua impianmu tercapai, sehat, bahagia, dan selalu dikelilingi cinta.",
+    photos: ["5.jpg", "3.jpg", "2.jpg", "6.jpg", "8.jpg", "9.jpg", "10.jpg", "1.jpg"],
+    reveal1: `Selamat Ulang Tahun, Ozza Sayangku ❤✨
 
 Hari ini adalah hari istimewa, dan aku bersyukur bisa merayakannya bersamamu.
 Semoga kamu selalu sehat, bahagia, dan dilimpahi keberkahan dalam setiap langkah.
@@ -402,9 +466,9 @@ Semoga kamu membanggakan mereka dengan prestasi, kesuksesan, dan segala pencapai
 
 Kamu bukan hanya cintaku, tapi juga inspirasiku.
 Selamat ulang tahun, cintaku Ozza. Semoga semua doa indah ini terwujud untukmu. 🌹✨
+
 `,
-      // surat 2 (panjang)
-      reveal2: `Ozzara sayang, ini untukmu. Semoga kejutan ini bisa menjadi hadiah yang berkesan dan sesuai dengan yang kamu impikan. Aku berharap kamu suka dengan apa yang aku siapkan.
+    reveal2: `Ozzara sayang, ini untukmu. Semoga kejutan ini bisa menjadi hadiah yang berkesan dan sesuai dengan yang kamu impikan. Aku berharap kamu suka dengan apa yang aku siapkan.
 
 Semoga hari-harimu selalu penuh cinta, tawa, dan kebahagiaan. Aku berdoa agar hidupmu diberkahi, bisnismu berkembang pesat, laris manis, dan dikenal banyak orang. Semoga apa yang kamu tekuni dengan kerja keras menjadi jalan menuju kesuksesan besar.
 
@@ -417,156 +481,183 @@ Percayalah, ini bukan sekadar hadiah, tapi juga bentuk komitmenku untuk menemani
 Teruslah semangat, teruslah berdoa, dan teruslah berusaha. Aku bangga padamu, dan aku akan selalu mendukungmu sepenuhnya.
 
 — Dengan penuh cinta, Hasan ❤️`
-    };
+  };
 
-    // --- fill UI ---
-    document.getElementById("nameLabel").textContent = DATA.name;
-    document.getElementById("nameMeta").textContent = DATA.name;
-    document.getElementById("ageLabel").textContent = DATA.age;
-    document.getElementById("ageMeta").textContent = DATA.age;
-    document.getElementById("ageBig").textContent = DATA.age;
+  // isi UI
+  document.getElementById("nameLabel").textContent = DATA.name;
+  document.getElementById("nameMeta").textContent = DATA.name;
+  document.getElementById("ageLabel").textContent = DATA.age;
+  document.getElementById("ageMeta").textContent = DATA.age;
+  document.getElementById("ageBig").textContent = DATA.age;
 
-    // typing effect for main message
-    function typeEffect(el, text, speed = 40) {
-      let i = 0; el.textContent = "";
-      const timer = setInterval(() => {
-        el.textContent += text.charAt(i);
-        i++;
-        if (i >= text.length) clearInterval(timer);
-      }, speed);
-    }
+  // typing effect
+  function typeEffect(el, text, speed = 40) {
+    let i = 0; el.textContent = "";
+    const timer = setInterval(() => {
+      el.textContent += text.charAt(i);
+      i++;
+      if (i >= text.length) clearInterval(timer);
+    }, speed);
+  }
 
-    // Photo slider (card) - auto but gentle; images fit, no heavy scaling
-    const slidesEl = document.getElementById("slides");
-    DATA.photos.forEach(src => {
-      const img = document.createElement("img");
-      img.src = src;
-      img.alt = "Foto";
-      slidesEl.appendChild(img);
-    });
-    let slideIdx = 0;
-    function showSlide(i) {
-      slideIdx = (i + DATA.photos.length) % DATA.photos.length;
-      slidesEl.style.transform = `translateX(${-slideIdx * 100}%)`;
-    }
-    // auto slide every 3s
-    let slideInterval = setInterval(() => showSlide(slideIdx + 1), 3000);
-    // pause on hover (optional)
-    slidesEl.addEventListener("mouseenter", () => clearInterval(slideInterval));
-    slidesEl.addEventListener("mouseleave", () => { slideInterval = setInterval(() => showSlide(slideIdx + 1), 3000); });
+  // slider
+  const slidesEl = document.getElementById("slides");
+  DATA.photos.forEach(src => {
+    const img = document.createElement("img");
+    img.src = src;
+    slidesEl.appendChild(img);
+  });
+  let slideIdx = 0;
+  function showSlide(i) {
+    slideIdx = (i + DATA.photos.length) % DATA.photos.length;
+    slidesEl.style.transform = `translateX(${-slideIdx * 100}%)`;
+  }
+  setInterval(() => showSlide(slideIdx + 1), 3000);
 
-    // Curtain open
-    const curtain = document.getElementById("curtain");
-    const panels = document.querySelectorAll(".curtain .panel");
-    function openCurtain() {
-      panels[0].style.transform = "translateY(-120%)";
-      panels[1].style.transform = "translateY(120%)";
-      setTimeout(() => {
-        curtain.style.display = "none";
-        document.querySelector(".stage").setAttribute("aria-hidden", "false");
-        typeEffect(document.getElementById("mainMessage"), DATA.mainMessage, 35);
-      }, 2600);
-    }
-    window.addEventListener("load", () => setTimeout(openCurtain, 1500));
+  // Curtain
+  const curtain = document.getElementById("curtain");
+  const panels = document.querySelectorAll(".curtain .panel");
+  function openCurtain() {
+    panels[0].style.transform = "translateY(-120%)";
+    panels[1].style.transform = "translateY(120%)";
+    setTimeout(() => {
+      curtain.style.display = "none";
+      document.querySelector(".stage").setAttribute("aria-hidden", "false");
+      typeEffect(document.getElementById("mainMessage"), DATA.mainMessage, 35);
+    }, 2600);
+  }
+  window.addEventListener("load", () => setTimeout(openCurtain, 1500));
 
-    // Confetti canvas simple
-    const confCanvas = document.getElementById("confetti"), ctx = confCanvas.getContext("2d");
-    let W = confCanvas.width = window.innerWidth, H = confCanvas.height = window.innerHeight;
-    window.addEventListener("resize", () => { W = confCanvas.width = window.innerWidth; H = confCanvas.height = window.innerHeight; });
-    let pieces = [], running = false;
-    function rand(min, max) { return Math.random() * (max - min) + min }
-    function resetPiece(p) { p.x = rand(0, W); p.y = rand(-H, -10); p.size = rand(6, 14); p.speed = rand(1, 3); p.color = `hsl(${~~rand(30, 55)},70%,50%)`; }
-    function spawn(n = 80) { for (let i = 0; i < n; i++) { let p = {}; resetPiece(p); pieces.push(p); } }
-    function draw() { ctx.clearRect(0, 0, W, H); for (const p of pieces) { p.y += p.speed; ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, p.size, p.size); if (p.y > H) resetPiece(p); } if (running) requestAnimationFrame(draw); }
-    function startConfetti() { if (!running) { spawn(100); running = true; draw(); } }
-    function stopConfetti() { running = false; pieces = []; ctx.clearRect(0, 0, W, H); }
+  // Confetti
+  const confCanvas = document.getElementById("confetti"), ctx = confCanvas.getContext("2d");
+  let W = confCanvas.width = window.innerWidth, H = confCanvas.height = window.innerHeight;
+  window.addEventListener("resize", () => { W = confCanvas.width = window.innerWidth; H = confCanvas.height = window.innerHeight; });
+  let pieces = [], running = false;
+  function rand(min, max) { return Math.random() * (max - min) + min }
+  function resetPiece(p) { p.x = rand(0, W); p.y = rand(-H, -10); p.size = rand(6, 14); p.speed = rand(1, 3); p.color = `hsl(${~~rand(30, 55)},70%,50%)`; }
+  function spawn(n = 80) { for (let i = 0; i < n; i++) { let p = {}; resetPiece(p); pieces.push(p); } }
+  function draw() { ctx.clearRect(0, 0, W, H); for (const p of pieces) { p.y += p.speed; ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, p.size, p.size); if (p.y > H) resetPiece(p); } if (running) requestAnimationFrame(draw); }
+  function startConfetti() { if (!running) { spawn(100); running = true; draw(); } }
+  function stopConfetti() { running = false; pieces = []; ctx.clearRect(0, 0, W, H); }
 
-    // Modal behavior: photo top, two letters in content, prev/next near close
-    const revealModal = document.getElementById("revealModal");
-    const revealPhoto = document.getElementById("revealPhoto");
-    const revealText1 = document.getElementById("revealText1");
-    const revealText2 = document.getElementById("revealText2");
-    const revealContent = document.getElementById("revealContent");
-    const prevTextBtn = document.getElementById("prevText");
-    const nextTextBtn = document.getElementById("nextText");
-    const closeBtn = document.getElementById("closeReveal");
-
-    // put texts
-    revealText1.textContent = DATA.reveal1;
-    revealText2.textContent = DATA.reveal2;
-
-    // modal current index (0 = show first paragraph on top of scroll, 1 = scroll to second)
-    let modalIndex = 0;
-    function openModal() {
-      // set photo and open
-      revealPhoto.src = DATA.photos[0] || "";
-      revealModal.classList.add("show");
-      revealModal.setAttribute("aria-hidden", "false");
-      // ensure content scrolled to top of first paragraph
-      revealContent.scrollTop = 0;
-      modalIndex = 0;
-      startConfetti();
-      // focus for accessibility
-      closeBtn.focus();
-    }
-    function closeModal() {
-      revealModal.classList.remove("show");
-      revealModal.setAttribute("aria-hidden", "true");
-      stopConfetti();
-    }
-
-    // Prev/Next behavior will scroll to resulting paragraph
-    function showModalIndex(i) {
-      modalIndex = Math.max(0, Math.min(1, i));
-      // compute scroll position to top of the paragraph inside revealContent
-      // Because we have simple layout: p (1), hr, p (2). We'll target child positions.
-      const children = Array.from(revealContent.children);
-      const target = children[modalIndex * 2]; // p at 0 or p at 2 (because hr is index 1)
-      if (target) {
-        // smooth scroll
-        revealContent.scrollTo({ top: target.offsetTop, behavior: 'smooth' });
+  // Fireworks
+  const fwCanvas = document.getElementById("fireworks"), fctx = fwCanvas.getContext("2d");
+  fwCanvas.width = window.innerWidth; fwCanvas.height = window.innerHeight;
+  window.addEventListener("resize", () => { fwCanvas.width = window.innerWidth; fwCanvas.height = window.innerHeight; });
+  let fireworks = [], particles = [];
+  function Firework(x, y) { this.x = x; this.y = y; this.radius = 2; this.alpha = 1; this.exploded = false; }
+  Firework.prototype.update = function () {
+    if (!this.exploded) {
+      this.y -= 3;
+      if (this.y < rand(150, 350)) {
+        this.exploded = true;
+        for (let i = 0; i < 50; i++) { particles.push(new Particle(this.x, this.y)); }
       }
     }
+    this.draw();
+  }
+  Firework.prototype.draw = function () {
+    fctx.beginPath();
+    fctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+    fctx.fillStyle = "rgba(255,200,0," + this.alpha + ")";
+    fctx.fill();
+  }
+  function Particle(x, y) {
+    this.x = x; this.y = y;
+    this.speed = rand(1, 5);
+    this.angle = rand(0, 2 * Math.PI);
+    this.radius = 2; this.alpha = 1;
+    this.color = Math.random() < 0.3 ? "❤️" : `hsl(${~~rand(0, 360)},100%,50%)`;
+  }
+  Particle.prototype.update = function () {
+    this.x += this.speed * Math.cos(this.angle);
+    this.y += this.speed * Math.sin(this.angle) + 1;
+    this.alpha -= 0.02;
+    this.draw();
+  }
+  Particle.prototype.draw = function () {
+    if (this.color === "❤️") {
+      fctx.font = "16px serif";
+      fctx.globalAlpha = this.alpha;
+      fctx.fillText("❤️", this.x, this.y);
+      fctx.globalAlpha = 1;
+    } else {
+      fctx.beginPath();
+      fctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+      fctx.fillStyle = "rgba(255,0,0," + this.alpha + ")";
+      fctx.fill();
+    }
+  }
+  function animateFireworks() {
+    fctx.clearRect(0, 0, fwCanvas.width, fwCanvas.height);
+    for (let i = fireworks.length - 1; i >= 0; i--) {
+      fireworks[i].update();
+      if (fireworks[i].alpha <= 0) fireworks.splice(i, 1);
+    }
+    for (let i = particles.length - 1; i >= 0; i--) {
+      particles[i].update();
+      if (particles[i].alpha <= 0) particles.splice(i, 1);
+    }
+    if (fireworkRunning) requestAnimationFrame(animateFireworks);
+  }
 
-    // button wireups
-    document.getElementById("revealBtn").addEventListener("click", openModal);
-    closeBtn.addEventListener("click", closeModal);
-    prevTextBtn.addEventListener("click", () => showModalIndex(modalIndex - 1));
-    nextTextBtn.addEventListener("click", () => showModalIndex(modalIndex + 1));
+  let fireworkRunning = false;
+  document.getElementById("fireworksToggle").addEventListener("click", () => {
+    if (fireworkRunning) {
+      fireworkRunning = false;
+      fireworks = [];
+      particles = [];
+      fctx.clearRect(0, 0, fwCanvas.width, fwCanvas.height);
+    } else {
+      fireworkRunning = true;
+      fireworks.push(new Firework(rand(100, W - 100), H));
+      animateFireworks();
 
-    // allow keyboard navigation when modal open
-    document.addEventListener("keydown", (e) => {
-      if (revealModal.classList.contains("show")) {
-        if (e.key === "Escape") closeModal();
-        if (e.key === "ArrowLeft") showModalIndex(modalIndex - 1);
-        if (e.key === "ArrowRight") showModalIndex(modalIndex + 1);
-      }
-    });
-
-    // allow swipe inside revealContent for mobile (simple)
-    let startY = 0, startX = 0;
-    revealContent.addEventListener('touchstart', e => {
-      if (e.touches && e.touches[0]) {
-        startX = e.touches[0].clientX;
-        startY = e.touches[0].clientY;
-      }
-    }, { passive: true });
-    revealContent.addEventListener('touchend', e => {
-      if (e.changedTouches && e.changedTouches[0]) {
-        const dx = e.changedTouches[0].clientX - startX;
-        const dy = e.changedTouches[0].clientY - startY;
-        // horizontal swipe: left/right -> next/prev
-        if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) {
-          if (dx < 0) showModalIndex(modalIndex + 1);
-          else showModalIndex(modalIndex - 1);
+      // interval spawn
+      let fwInterval = setInterval(() => {
+        if (fireworkRunning) {
+          fireworks.push(new Firework(rand(100, W - 100), H));
         }
-      }
-    });
+      }, 1200);
 
-    // Prevent background scroll when modal open? User requested modal scroll normal;
-    // We'll allow background scroll but keep focus inside modal — simpler: disable body scroll while modal open to avoid double scroll.
+      // auto stop setelah 10 detik (bersih total)
+      setTimeout(() => {
+        fireworkRunning = false;
+        clearInterval(fwInterval);
+        fireworks = [];
+        particles = [];
+        fctx.clearRect(0, 0, fwCanvas.width, fwCanvas.height);
+      }, 10000);
+    }
+  });
 
-  </script>
+  // Modal
+  const modal = document.getElementById("revealModal"),
+    revealBtn = document.getElementById("revealBtn"),
+    closeReveal = document.getElementById("closeReveal"),
+    revealText1 = document.getElementById("revealText1"),
+    revealText2 = document.getElementById("revealText2"),
+    revealPhoto = document.getElementById("revealPhoto");
+  let revealIdx = 0;
+  function showReveal(i) {
+    revealIdx = (i + 2) % 2;
+    if (revealIdx === 0) {
+      typeEffect(revealText1, DATA.reveal1, 28);
+      revealText2.textContent = "";
+      revealPhoto.src = "5.jpg";
+    } else {
+      typeEffect(revealText2, DATA.reveal2, 28);
+      revealText1.textContent = "";
+      revealPhoto.src = "1.jpg";
+    }
+  }
+  revealBtn.onclick = () => { modal.classList.add("show"); modal.setAttribute("aria-hidden", "false"); showReveal(0); startConfetti(); }
+  closeReveal.onclick = () => { modal.classList.remove("show"); modal.setAttribute("aria-hidden", "true"); stopConfetti(); }
+  document.getElementById("prevText").onclick = () => showReveal(revealIdx - 1);
+  document.getElementById("nextText").onclick = () => showReveal(revealIdx + 1);
+</script>
+
+
 </body>
 
 </html>
